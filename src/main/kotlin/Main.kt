@@ -1,7 +1,7 @@
-import nupa.aoc23.days.day4.day4Part1
-import nupa.aoc23.days.day4.day4Part2
+import nupa.aoc23.days.day3.day3Part1
+import nupa.aoc23.days.day3.day3Part2
 
 fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
-    day4Part1()
-    day4Part2()
+    day3Part1()
+    day3Part2()
 }
