@@ -24,6 +24,9 @@ fun String.splitAndTrim(separator: Regex, limit: Int = 0):List<String> =
 fun String.splitToInts(vararg separators: String): List<Int> =
     splitAndTrim(*separators).map { it.toInt() }
 
+fun String.splitToLongs(vararg separators: String): List<Long> =
+    splitAndTrim(*separators).map { it.toLong() }
+
 fun String.splitToInts(separator: Regex): List<Int> =
     splitAndTrim(separator).map { it.toInt() }
 
