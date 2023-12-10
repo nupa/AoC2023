@@ -12,9 +12,6 @@ fun lines(file: String): List<String> =
 fun fileAsString(file: String): String =
     File(inputDir, file).readText()
 
-fun splitToLines(text: String): List<String> =
-    text.lines()
-
 fun String.splitAndTrim(vararg separators: String, limit: Int = 0):List<String> =
     split(*separators, limit = limit).map { it.trim() }
 
