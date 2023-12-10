@@ -15,16 +15,7 @@ fun day7Part1() {
             cardsWithAmount[it] = cardAmount+1
         }
         val cards = cardsWithAmount.toList().sortedBy { it.second }.reversed()
-        val hand = when (cards[0].second) {
-            5 -> Hand.FiveOfKind(handAndBid.first)
-            4 -> Hand.FourOfKind(handAndBid.first)
-            3 -> if (cards[1].second == 2)
-                Hand.FullHouse(handAndBid.first)
-            else
-                Hand.ThreeOfKind(handAndBid.first)
-            2 -> if (cards[1].second == 2) Hand.TwoPairs(handAndBid.first) else Hand.Pair(handAndBid.first)
-            else -> Hand.HighCard(handAndBid.first)
-        }
+        val hand = cards.toHand(handAndBid.first)
         Game(hand, handAndBid.second.toInt())
     }
     println(games.sortedWith(SimpleGameComparator).reversed().withIndex().fold(0L) { acc, gameWithIndex -> acc + (gameWithIndex.index + 1) * gameWithIndex.value.bid })
@@ -108,3 +99,16 @@ sealed class Hand(val allCards: String) {
 
 fun List<Pair<Char, Char>>.compareUntilDifferent(): Int =
     firstNotNullOfOrNull { (o1, o2) -> CardComparator.compare(o1, o2).takeIf { it != 0 } } ?: 0
+
+fun List<Pair<Char, Int>>.toHand(unsortedAllCards: String): Hand {
+    return when (this[0].second) {
+        5 -> Hand.FiveOfKind(unsortedAllCards)
+        4 -> Hand.FourOfKind(unsortedAllCards)
+        3 -> if (this[1].second == 2)
+            Hand.FullHouse(unsortedAllCards)
+        else
+            Hand.ThreeOfKind(unsortedAllCards)
+        2 -> if (this[1].second == 2) Hand.TwoPairs(unsortedAllCards) else Hand.Pair(unsortedAllCards)
+        else -> Hand.HighCard(unsortedAllCards)
+    }
+}
