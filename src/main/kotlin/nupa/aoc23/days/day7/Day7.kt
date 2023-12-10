@@ -3,6 +3,7 @@ package nupa.aoc23.days.day7
 import nupa.aoc23.input.lines
 import nupa.aoc23.input.splitToPair
 
+//248396258
 
 fun day7Part1() {
     val lines = lines("day7/input.txt")
@@ -18,29 +19,30 @@ fun day7Part1() {
         val hand = cards.toHand(handAndBid.first)
         Game(hand, handAndBid.second.toInt())
     }
-    println(games.sortedWith(SimpleGameComparator).reversed().withIndex().fold(0L) { acc, gameWithIndex -> acc + (gameWithIndex.index + 1) * gameWithIndex.value.bid })
+    println(games.sortedWith(SimpleGameComparator(Part1CardComparator)).reversed().withIndex().fold(0L) { acc, gameWithIndex -> acc + (gameWithIndex.index + 1) * gameWithIndex.value.bid })
 }
 
 
-object CardComparator: Comparator<Char> {
+object Part1CardComparator: Comparator<Char> {
     private val CARD_ORDER = listOf('A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4', '3', '2')
     override fun compare(o1: Char, o2: Char): Int {
         return CARD_ORDER.indexOf(o1) - CARD_ORDER.indexOf(o2)
     }
 }
-object SimpleHandComparator: Comparator<Hand> {
+class SimpleHandComparator(private val cardComparator: Comparator<Char>): Comparator<Hand> {
     override fun compare(o1: Hand, o2: Hand): Int {
         return if (o1::class == o2::class) {
-            o1.allCards.zip(o2.allCards).compareUntilDifferent()
+            o1.allCards.zip(o2.allCards).compareUntilDifferent(cardComparator)
         } else {
             o1.rank - o2.rank
         }
     }
 }
 
-object SimpleGameComparator: Comparator<Game> {
+class SimpleGameComparator(cardComparator: Comparator<Char>): Comparator<Game> {
+    private val handComparator = SimpleHandComparator(cardComparator)
     override fun compare(o1: Game, o2: Game): Int =
-        SimpleHandComparator.compare(o1.hand, o2.hand)
+        handComparator.compare(o1.hand, o2.hand)
 }
 
 class Game(val hand: Hand, val bid: Int)
@@ -97,8 +99,8 @@ sealed class Hand(val allCards: String) {
     }
 }
 
-fun List<Pair<Char, Char>>.compareUntilDifferent(): Int =
-    firstNotNullOfOrNull { (o1, o2) -> CardComparator.compare(o1, o2).takeIf { it != 0 } } ?: 0
+fun List<Pair<Char, Char>>.compareUntilDifferent(with: Comparator<Char>): Int =
+    firstNotNullOfOrNull { (o1, o2) -> with.compare(o1, o2).takeIf { it != 0 } } ?: 0
 
 fun List<Pair<Char, Int>>.toHand(unsortedAllCards: String): Hand {
     return when (this[0].second) {
