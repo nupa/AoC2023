@@ -22,6 +22,28 @@ fun day7Part1() {
     println(games.sortedWith(SimpleGameComparator(Part1CardComparator)).reversed().withIndex().fold(0L) { acc, gameWithIndex -> acc + (gameWithIndex.index + 1) * gameWithIndex.value.bid })
 }
 
+fun day7Part2() {
+    val lines = lines("day7/input.txt")
+
+    val games = lines.map { game ->
+        val handAndBid = game.splitToPair(" ")
+        val cardsAsList = handAndBid.first.toList()
+        val numberOfJs = cardsAsList.count { it == 'J' }
+        if (numberOfJs == 5)
+            return@map Game(Hand.FiveOfKind(handAndBid.first), handAndBid.second.toInt())
+        val cardsWithAmount = mapOf<Char, Int>().toMutableMap()
+        cardsAsList.filter { it != 'J' }.forEach {
+            val cardAmount = cardsWithAmount.getOrDefault(it,0)
+            cardsWithAmount[it] = cardAmount+1
+        }
+        val cards = cardsWithAmount.toList().sortedBy { it.second }.reversed()
+        val hand = (listOf(cards[0].first to cards[0].second + numberOfJs) + cards.subList(1, cards.size)).toHand(handAndBid.first)
+
+        Game(hand, handAndBid.second.toInt())
+    }
+
+    println(games.sortedWith(SimpleGameComparator(Part2CardComparator)).reversed().withIndex().fold(0L) { acc, gameWithIndex -> acc + (gameWithIndex.index + 1) * gameWithIndex.value.bid })
+}
 
 object Part1CardComparator: Comparator<Char> {
     private val CARD_ORDER = listOf('A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4', '3', '2')
@@ -29,6 +51,14 @@ object Part1CardComparator: Comparator<Char> {
         return CARD_ORDER.indexOf(o1) - CARD_ORDER.indexOf(o2)
     }
 }
+
+object Part2CardComparator: Comparator<Char> {
+    private val CARD_ORDER = listOf('A', 'K', 'Q', 'T', '9', '8', '7', '6', '5', '4', '3', '2', 'J')
+    override fun compare(o1: Char, o2: Char): Int {
+        return CARD_ORDER.indexOf(o1) - CARD_ORDER.indexOf(o2)
+    }
+}
+
 class SimpleHandComparator(private val cardComparator: Comparator<Char>): Comparator<Hand> {
     override fun compare(o1: Hand, o2: Hand): Int {
         return if (o1::class == o2::class) {
